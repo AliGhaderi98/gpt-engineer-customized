@@ -1,33 +1,32 @@
 import json
 import pathlib
 
+from typing import Union
+
 import typer
 
-from ..ai import AI
-from ..chat_to_files import to_files
+from gpt_engineer.ai import AI
+from gpt_engineer.chat_to_files import to_files
 
 app = typer.Typer()
 
 
 @app.command()
-def chat(
+def main(
     messages_path: str,
-    out_path: str | None = None,
+    out_path: Union[str, None] = None,
     model: str = "gpt-4",
     temperature: float = 0.1,
-    max_tokens: int = 4096,
 ):
-
     ai = AI(
-        model=model,
+        model_name=model,
         temperature=temperature,
-        max_tokens=max_tokens,
     )
 
     with open(messages_path) as f:
         messages = json.load(f)
 
-    messages = ai.next(messages)
+    messages = ai.next(messages, step_name="rerun")
 
     if out_path:
         to_files(messages[-1]["content"], out_path)
